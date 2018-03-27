@@ -15,9 +15,12 @@ namespace StutiBox.Controllers
     public class PlayerController : Controller
     {
         IPlayerActor player;
+		ILibraryActor libraryActor;
+
         public PlayerController()
         {
             player = DependencyActor.Container.Resolve<IPlayerActor>();
+			libraryActor = DependencyActor.Container.Resolve<ILibraryActor>();
         }
 
         [HttpGet]
@@ -32,25 +35,63 @@ namespace StutiBox.Controllers
         [Route("Request")]
         public IActionResult RequestAction([FromBody]PlayerRequest playerRequest)
         {
+			dynamic response = null;
             switch (playerRequest.RequestType)
             {
                 case RequestType.Play:
-                    if (player.PlaybackState==PlaybackState.Stopped)
-                        player.Play(playerRequest.Identifier);
+					if (player.PlaybackState == PlaybackState.Stopped)
+					{
+						var success = player.Play(playerRequest.Identifier);
+						if (success)
+							response = new { Status = success, Message = $"Started: {libraryActor.GetItem(playerRequest.Identifier).Name}" };
+						else
+							response = new { Status = success, Message = "Unknown Error" };
+					}
+					else
+						response = new { Status = false, Message = $"Invalid State!", State = player.PlaybackState.ToString() };
                     break;
                 case RequestType.Pause:
                     break;
                 case RequestType.Stop:
-                    player.Stop();
+					if (player.PlaybackState == PlaybackState.Playing || player.PlaybackState == PlaybackState.Paused)
+					{
+						var success = player.Stop();
+						if (success)
+						{
+							//Todo: Add the capability to say which song was stopped
+							response = new { Status = success, Message = "Playback stopped!" };
+						}
+						else
+							response = new { Status = success, Message = "Unknown Error" }; //Todo: add ability to provide error message as well
+					}
+					else
+						response = new { Status = false, Message = $"Invalid State", State = player.PlaybackState.ToString() };
                     break;
                 case RequestType.Enqueue:
                     break;
                 case RequestType.DeQueue:
                     break;
                 default:
-                    return BadRequest();
+					return BadRequest(new { Status = false, Message = "Unknown RequestType" });
             }
-            return Ok();
+            return Ok(response);
         }
+
+		[HttpPost]
+		[Route("Control")]
+		public IActionResult PlayerControlAction([FromBody]PlayerControlRequest playerControlRequest)
+		{
+            switch (playerControlRequest.ControlRequest)
+			{
+				case ControlRequest.Volume:
+					break;
+				case ControlRequest.Repeat:
+					break;
+				case ControlRequest.Random:
+				default:
+					break;
+			}
+			return Ok();
+		}
     }
 }

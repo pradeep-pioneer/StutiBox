@@ -39,7 +39,8 @@ namespace StutiBox.Actors
                 Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_POS | BASSSync.BASS_SYNC_MIXTIME, 0, playBackStartSyncProc, IntPtr.Zero);
                 Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_POS | BASSSync.BASS_SYNC_MIXTIME, 0, playBackEndSyncProc, IntPtr.Zero);
                 Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_STALL | BASSSync.BASS_SYNC_MIXTIME, 0, playBackEndSyncProc, IntPtr.Zero);
-                Bass.BASS_ChannelPlay(Stream, false);
+				if (Bass.BASS_ChannelPlay(Stream, false))
+					PlaybackState = PlaybackState.Playing;
             }
             else
                 return false;
@@ -70,7 +71,8 @@ namespace StutiBox.Actors
 
         private void playBackStartCallback(int handle, int channel, int data, IntPtr user)
         {
-            PlaybackState = PlaybackState.Playing;
+			//Todo: Figure this out - for now using the play function to set the state to playing
+            //PlaybackState = PlaybackState.Playing;
         }
 
         private void playBackEndCallBack(int handle, int channel, int data, IntPtr user)
