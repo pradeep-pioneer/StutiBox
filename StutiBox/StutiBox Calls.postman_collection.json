@@ -1,0 +1,199 @@
+{
+	"info": {
+		"_postman_id": "55efbd94-8809-42fb-a8a1-d3ed23c4b212",
+		"name": "StutiBox Calls",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Library",
+			"description": "",
+			"item": [
+				{
+					"name": "GetAll",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {},
+						"url": {
+							"raw": "http://{{BaseUrl}}:5000/api/Library/",
+							"protocol": "http",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"Library",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Player",
+			"description": "",
+			"item": [
+				{
+					"name": "PlayItem",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"RequestType\": {{PlayAction}},\n\t\"Identifier\":3\n}"
+						},
+						"url": {
+							"raw": "http://{{BaseUrl}}:5000/api/Player/Request",
+							"protocol": "http",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"Player",
+								"Request"
+							]
+						}
+					},
+					"response": [
+						{
+							"id": "9ba24c34-06c0-44d6-bd80-d2c427c1b96e",
+							"name": "PlayItem",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"name": "Content-Type",
+										"value": "application/json",
+										"disabled": false
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n\t\"RequestType\": {{PlayAction}},\n\t\"Identifier\":3\n}"
+								},
+								"url": {
+									"raw": "http://{{BaseUrl}}:5000/api/Player/Request",
+									"protocol": "http",
+									"host": [
+										"{{BaseUrl}}"
+									],
+									"port": "5000",
+									"path": [
+										"api",
+										"Player",
+										"Request"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "plain",
+							"header": [
+								{
+									"key": "Content-Length",
+									"value": "0",
+									"name": "Content-Length",
+									"description": "The length of the response body in octets (8-bit bytes)"
+								},
+								{
+									"key": "Date",
+									"value": "Tue, 27 Mar 2018 18:03:45 GMT",
+									"name": "Date",
+									"description": "The date and time that the message was sent"
+								},
+								{
+									"key": "Server",
+									"value": "Kestrel",
+									"name": "Server",
+									"description": "A name for the server"
+								}
+							],
+							"cookie": [],
+							"body": ""
+						}
+					]
+				},
+				{
+					"name": "StopPlayback",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"RequestType\": {{StopAction}},\n\t\"Identifier\":-1\n}"
+						},
+						"url": {
+							"raw": "http://{{BaseUrl}}:5000/api/Player/Request",
+							"protocol": "http",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"port": "5000",
+							"path": [
+								"api",
+								"Player",
+								"Request"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "d1cd8b43-5cae-4ad6-83df-6dce92f87922",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3ccd1199-ce47-4e26-b93b-19f01e20d572",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "ebb0bb16-188d-45d2-8eb0-a8903ac853b8",
+			"key": "PlayAction",
+			"value": "0",
+			"type": "string",
+			"description": ""
+		},
+		{
+			"id": "2e4ce6dc-6458-499c-9900-8077a9621472",
+			"key": "StopAction",
+			"value": "2",
+			"type": "string",
+			"description": ""
+		}
+	]
+}
