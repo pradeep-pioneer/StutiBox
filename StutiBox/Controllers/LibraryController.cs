@@ -8,6 +8,7 @@ namespace StutiBox.Controllers
     [Route("api/[controller]")]
     public class LibraryController : Controller
     {
+		[HttpGet]
         [Route("")]
         [Route("List")]
         public IActionResult List()

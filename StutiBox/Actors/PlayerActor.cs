@@ -10,6 +10,8 @@ namespace StutiBox.Actors
         public PlaybackState PlaybackState { get; private set; }
         public int Stream { get; private set; }
 
+		public const byte MAX_VOLUME = 100;
+
         public PlayerActor(IConfigurationActor configurationActor, ILibraryActor libraryActor)
         {
             ConfigurationActor = configurationActor;
@@ -63,6 +65,14 @@ namespace StutiBox.Actors
             Stream = 0;
             return result;
         }
+
+        public bool Volume(byte volume)
+		{
+			volume = volume > MAX_VOLUME ? MAX_VOLUME : volume;
+			var actualVolume = (float)volume / 100f;
+			var result = Bass.BASS_SetVolume(actualVolume);
+			return result;
+		}
 
         private void playBackPausedCallBack(int handle, int channel, int data, IntPtr user)
         {

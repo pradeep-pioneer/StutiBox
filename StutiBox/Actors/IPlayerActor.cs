@@ -9,5 +9,6 @@
         int Stream { get; }
         bool Play(int identifier);
         bool Stop();
+		bool Volume(byte volume);
     }
 }

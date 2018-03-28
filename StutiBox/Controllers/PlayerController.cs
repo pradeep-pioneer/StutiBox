@@ -81,9 +81,15 @@ namespace StutiBox.Controllers
 		[Route("Control")]
 		public IActionResult PlayerControlAction([FromBody]PlayerControlRequest playerControlRequest)
 		{
+			dynamic response = null;
             switch (playerControlRequest.ControlRequest)
 			{
 				case ControlRequest.Volume:
+					var volume = (byte)playerControlRequest.RequestData;
+					if (player.Volume(volume))
+						response = new { Status = true, Message = $"Set Volume: {volume} Units: {(float)volume / 100f}" };
+					else
+						response = new { Status = false, Message = $"Unknown Error!" };
 					break;
 				case ControlRequest.Repeat:
 					break;
@@ -91,7 +97,7 @@ namespace StutiBox.Controllers
 				default:
 					break;
 			}
-			return Ok();
+			return Ok(response);
 		}
     }
 }
