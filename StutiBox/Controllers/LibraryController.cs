@@ -13,7 +13,7 @@ namespace StutiBox.Controllers
         [Route("List")]
         public IActionResult List()
         {
-            return Ok(DependencyActor.Container.Resolve<ILibraryActor>().LibraryItems);
+			return Ok(new { Status = true, Items = DependencyActor.Container.Resolve<ILibraryActor>().LibraryItems });
         }
 
         [HttpPost]
@@ -48,6 +48,18 @@ namespace StutiBox.Controllers
             else
                 return NotFound();
         }
+
+        [HttpGet]
+        [Route("Refresh")]
+        public IActionResult Refresh(bool stopPlayer=false)
+		{
+			var playerActor = DependencyActor.Container.Resolve<IPlayerActor>();
+			bool result = playerActor.LibraryActor.Refresh(stopPlayer);
+			var message = result ? $"Library Refreshed!" : "Operation Failed - check status field for details!";
+			var status = new { PlayerState = playerActor.PlaybackState, LibraryItemsCount = playerActor.LibraryActor.LibraryItems.Count };
+			var response = new { Status = result, Message = message, Items = playerActor.LibraryActor.LibraryItems };
+			return Ok(response);
+		}
 
     }
 }

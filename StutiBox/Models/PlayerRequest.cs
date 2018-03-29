@@ -12,7 +12,8 @@ namespace StutiBox.Models
         Play = 0,
         Pause = 1,
         Stop = 2,
-        Enqueue = 3,
-        DeQueue = 4
+        Resume = 3,
+        Enqueue = 4,
+        DeQueue = 5
     }
 }

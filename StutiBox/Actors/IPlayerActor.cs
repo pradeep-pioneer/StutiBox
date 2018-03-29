@@ -8,6 +8,8 @@
         PlaybackState PlaybackState { get; }
         int Stream { get; }
         bool Play(int identifier);
+		bool Pause();
+		bool Resume();
         bool Stop();
 		bool Volume(byte volume);
     }

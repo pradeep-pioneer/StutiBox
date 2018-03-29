@@ -9,5 +9,6 @@ namespace StutiBox.Actors
         List<LibraryItem> Find(params string[] keywords);
         LibraryItem LuckySearch(params string[] keywords);
         LibraryItem GetItem(int id);
+		bool Refresh(bool stopPlayer = false);
     }
 }

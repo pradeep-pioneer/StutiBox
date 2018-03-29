@@ -51,6 +51,28 @@ namespace StutiBox.Controllers
 						response = new { Status = false, Message = $"Invalid State!", State = player.PlaybackState.ToString() };
                     break;
                 case RequestType.Pause:
+					if(player.PlaybackState == PlaybackState.Playing)
+					{
+						var success = player.Pause();
+                        if (success)
+                            response = new { Status = success, Message = $"Playback Paused!" };
+                        else
+                            response = new { Status = success, Message = "Unknown Error" };
+					}
+					else
+                        response = new { Status = false, Message = $"Invalid State!", State = player.PlaybackState.ToString() };
+                    break;
+				case RequestType.Resume:
+					if (player.PlaybackState == PlaybackState.Paused)
+                    {
+                        var success = player.Resume();
+                        if (success)
+                            response = new { Status = success, Message = $"Playback Resuming!" };
+                        else
+                            response = new { Status = success, Message = "Unknown Error" };
+                    }
+					else
+                        response = new { Status = false, Message = $"Invalid State!", State = player.PlaybackState.ToString() };
                     break;
                 case RequestType.Stop:
 					if (player.PlaybackState == PlaybackState.Playing || player.PlaybackState == PlaybackState.Paused)

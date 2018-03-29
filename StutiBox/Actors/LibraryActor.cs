@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using StutiBox.Models;
+using Autofac;
 
 namespace StutiBox.Actors
 {
@@ -33,6 +34,23 @@ namespace StutiBox.Actors
         {
             return LibraryItems.FirstOrDefault(item => keywords.Any(that => item.Name.ToLower().Contains(that.ToLower())));
         }
+
+        public bool Refresh(bool stopPlayer = false)
+		{
+			bool result;
+			if (stopPlayer)
+				result = DependencyActor.Container.Resolve<IPlayerActor>().Stop();
+			try
+			{
+				buildLibrary(DependencyActor.Container.Resolve<IConfigurationActor>());
+				result = true;
+			}
+			catch
+			{
+				result = false;
+			}
+			return result;
+		}
 
         private void buildLibrary(IConfigurationActor configuration)
         {
