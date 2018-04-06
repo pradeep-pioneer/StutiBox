@@ -9,9 +9,15 @@ namespace StutiBox.Actors
 {
     public class LibraryActor : ILibraryActor
     {
-        public LibraryActor(IConfigurationActor configuration)
+		private IConfigurationActor configurationActor;
+		private IBassActor bassActor;
+		public DateTime RefreshedAt { get; private set; }
+        public LibraryActor(IConfigurationActor configuration, IBassActor bass)
         {
-            buildLibrary(configuration);
+			
+			configurationActor = configuration??throw new ArgumentNullException(nameof(configuration));
+			bassActor = bass ?? throw new ArgumentNullException(nameof(bass));
+            buildLibrary(configuration, bass);
         }
 
         public LibraryItem this[int id]=> GetItem(id);
@@ -35,14 +41,13 @@ namespace StutiBox.Actors
             return LibraryItems.FirstOrDefault(item => keywords.Any(that => item.Name.ToLower().Contains(that.ToLower())));
         }
 
-        public bool Refresh(bool stopPlayer = false)
+        public bool Refresh()
 		{
 			bool result;
-			if (stopPlayer)
-				result = DependencyActor.Container.Resolve<IPlayerActor>().Stop();
+
 			try
 			{
-				buildLibrary(DependencyActor.Container.Resolve<IConfigurationActor>());
+				buildLibrary(configurationActor, bassActor);
 				result = true;
 			}
 			catch
@@ -52,16 +57,17 @@ namespace StutiBox.Actors
 			return result;
 		}
 
-        private void buildLibrary(IConfigurationActor configuration)
+        private void buildLibrary(IConfigurationActor configuration, IBassActor bass)
         {
             LibraryItems = new List<LibraryItem>();
             int counter = 1;
             var directory = new DirectoryInfo(configuration.LibraryConfiguration.MusicDirectory.ToString());
-            var musicFiles = directory.EnumerateFiles("*.mp3", SearchOption.AllDirectories);
-            musicFiles.ToList().ForEach(fileInfo =>
-            {
-                LibraryItems.Add(new LibraryItem() { Id = counter++, Name = fileInfo.Name, FullPath = fileInfo.FullName });
-            });
+			var comparison = new Comparison<FileInfo>((x, y) => { return x.Name.CompareTo(y.Name); });
+			var musicFiles = directory.EnumerateFiles("*.mp3", SearchOption.AllDirectories).ToList();
+			musicFiles.Sort(comparison);
+			var items = musicFiles.Select(x => new LibraryItem(counter++, x.FullName, bassActor)).ToList();
+			LibraryItems.AddRange(items);
+			RefreshedAt = DateTime.Now;
         }
     }
 }

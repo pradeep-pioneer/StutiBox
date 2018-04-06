@@ -28,7 +28,20 @@ namespace StutiBox.Controllers
         [Route("Status")]
         public IActionResult Status()
         {
-            return Ok();
+			var response = new
+			{
+                Status = true,
+                TotalLibraryItems = libraryActor.LibraryItems.Count,
+                PlayerState = player.PlaybackState.ToString(),
+                player.CurrentLibraryItem,
+				BassState = player.BassActor.State.ToString(),
+                Volume = player.BassActor.CurrentVolume,
+                player.BassActor.CurrentPositionBytes,
+                player.BassActor.CurrentPositionSeconds,
+                player.BassActor.CurrentPositionString,
+                player.BassActor.Repeat
+			};
+            return Ok(response);
         }
 
         [HttpPost]
@@ -43,7 +56,7 @@ namespace StutiBox.Controllers
 					{
 						var success = player.Play(playerRequest.Identifier);
 						if (success)
-							response = new { Status = success, Message = $"Started: {libraryActor.GetItem(playerRequest.Identifier).Name}" };
+							response = new { Status = success, Message = $"Started!", MediaItem = player.CurrentLibraryItem };
 						else
 							response = new { Status = success, Message = "Unknown Error" };
 					}
@@ -55,7 +68,7 @@ namespace StutiBox.Controllers
 					{
 						var success = player.Pause();
                         if (success)
-                            response = new { Status = success, Message = $"Playback Paused!" };
+							response = new { Status = success, Message = $"Playback Paused!", MediaItem = player.CurrentLibraryItem };
                         else
                             response = new { Status = success, Message = "Unknown Error" };
 					}
@@ -67,7 +80,7 @@ namespace StutiBox.Controllers
                     {
                         var success = player.Resume();
                         if (success)
-                            response = new { Status = success, Message = $"Playback Resuming!" };
+							response = new { Status = success, Message = $"Playback Resuming!", MediaItem = player.CurrentLibraryItem };
                         else
                             response = new { Status = success, Message = "Unknown Error" };
                     }
@@ -77,11 +90,12 @@ namespace StutiBox.Controllers
                 case RequestType.Stop:
 					if (player.PlaybackState == PlaybackState.Playing || player.PlaybackState == PlaybackState.Paused)
 					{
+						var currentItem = player.CurrentLibraryItem;
 						var success = player.Stop();
 						if (success)
 						{
 							//Todo: Add the capability to say which song was stopped
-							response = new { Status = success, Message = "Playback stopped!" };
+							response = new { Status = success, Message = "Playback stopped!", MediaItem = currentItem };
 						}
 						else
 							response = new { Status = success, Message = "Unknown Error" }; //Todo: add ability to provide error message as well
@@ -109,11 +123,29 @@ namespace StutiBox.Controllers
 				case ControlRequest.Volume:
 					var volume = (byte)playerControlRequest.RequestData;
 					if (player.Volume(volume))
-						response = new { Status = true, Message = $"Set Volume: {volume} Units: {(float)volume / 100f}" };
+						response = new { Status = true, Message = $"Set Volume!", Values = new {Scale1 = volume, Scale2 = (float)volume / 100f} };
 					else
 						response = new { Status = false, Message = $"Unknown Error!" };
 					break;
 				case ControlRequest.Repeat:
+					var result = player.ToggleRepeat();
+                    response = new
+                    {
+                        Status = result,
+                        Message = result ? $"Success! Repeat: {player.BassActor.Repeat}" : $"Failed! {player.PlaybackState.ToString()}",
+						player.BassActor.Repeat
+                    };
+                    break;
+				case ControlRequest.Seek:
+					result = player.Seek(playerControlRequest.RequestData);
+					response = new
+                    {
+                        Status = result,
+						Message = result ? $"Success! Seek: {playerControlRequest.RequestData}" : $"Failed to seek to: {playerControlRequest.RequestData.ToString()}!",
+						player.BassActor.CurrentPositionBytes,
+                        player.BassActor.CurrentPositionSeconds,
+                        player.BassActor.CurrentPositionString
+                    };
 					break;
 				case ControlRequest.Random:
 				default:

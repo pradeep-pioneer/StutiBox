@@ -12,6 +12,9 @@ using Swashbuckle.AspNetCore.Swagger;
 
 namespace StutiBox
 {
+	/*
+	 * 1. Add status reporting on startup (registration using consul)
+    */
     public class Startup
     {
         public Startup(IConfiguration configuration)

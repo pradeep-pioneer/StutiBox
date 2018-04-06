@@ -54,7 +54,11 @@ namespace StutiBox.Controllers
         public IActionResult Refresh(bool stopPlayer=false)
 		{
 			var playerActor = DependencyActor.Container.Resolve<IPlayerActor>();
-			bool result = playerActor.LibraryActor.Refresh(stopPlayer);
+            if(stopPlayer)
+			{
+				if (playerActor.PlaybackState == PlaybackState.Playing || playerActor.PlaybackState == PlaybackState.Paused) playerActor.Stop();
+			}
+			bool result = playerActor.LibraryActor.Refresh();
 			var message = result ? $"Library Refreshed!" : "Operation Failed - check status field for details!";
 			var status = new { PlayerState = playerActor.PlaybackState, LibraryItemsCount = playerActor.LibraryActor.LibraryItems.Count };
 			var response = new { Status = result, Message = message, Items = playerActor.LibraryActor.LibraryItems };

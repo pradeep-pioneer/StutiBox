@@ -13,5 +13,6 @@ namespace StutiBox.Models
 		Volume = 1,
 		Repeat = 2,
 		Random = 3,
+        Seek = 4
 	}
 }

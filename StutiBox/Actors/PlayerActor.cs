@@ -1,60 +1,62 @@
 ﻿using System;
+using StutiBox.Models;
 using Un4seen.Bass;
 
 namespace StutiBox.Actors
 {
+	/*
+	 * To Do:
+	 * 1. Add a wrapper around Bass object to make it testable
+	 * 2. Add current status reporting
+	 * 3. Add code for playlists
+    */
     public class PlayerActor : IPlayerActor
     {
-        public IConfigurationActor ConfigurationActor { get; private set; }
         public ILibraryActor LibraryActor { get; private set;}
-        public PlaybackState PlaybackState { get; private set; }
-        public int Stream { get; private set; }
-		public byte CurrentVolume { get; private set; }
+		public IBassActor BassActor { get; private set; }
+        public PlaybackState PlaybackState { get; internal set; }
+		public LibraryItem CurrentLibraryItem { get; private set; }
 
-		public const byte MAX_VOLUME = 100;
 
-        public PlayerActor(IConfigurationActor configurationActor, ILibraryActor libraryActor)
+        public PlayerActor(ILibraryActor libraryActor, IBassActor bassActor)
         {
-            ConfigurationActor = configurationActor;
-            LibraryActor = libraryActor;
+			BassActor = bassActor;
+			BassActor.BassActorEvent += onBassEvent;
+			LibraryActor = libraryActor;
             PlaybackState = PlaybackState.NotInitialized;
-            Stream = 0;
-            setupPlayBackEngine();
+			if (bassActor.State == ChannelStates.Faulted)
+				PlaybackState = PlaybackState.Faulted;
+			else
+				PlaybackState = PlaybackState.Stopped;
         }
+
+        private void onBassEvent(object sender, BassEventArgs args)
+		{
+			if (args.Event == BassEvent.PlaybackFinished)
+			{
+				PlaybackState = PlaybackState.Stopped;
+				CurrentLibraryItem = null;
+			}
+				
+			if (args.Event == BassEvent.PlaybackRestarting)
+				PlaybackState = PlaybackState.Playing;
+		}
 
         public bool Play(int identifier)
         {
-            if (PlaybackState == PlaybackState.Playing)
-                throw new NotSupportedException("Playback in progress, stop first");
-            if (PlaybackState == PlaybackState.Paused)
-                throw new NotSupportedException("Playback paused, either stop or use Resume");
-            if (PlaybackState == PlaybackState.Faulted || PlaybackState == PlaybackState.NotInitialized)
-                throw new NotSupportedException($"Playback engine not available: {PlaybackState}");
-            var file = LibraryActor.GetItem(identifier);
-            if (file == null)
-                throw new ArgumentException("Identifier not valid");
-            Stream = Bass.BASS_StreamCreateFile(file.FullPath, 0, 0, BASSFlag.BASS_DEFAULT);
-            if (Stream != 0)
-            {
-                var playBackStartSyncProc = new SYNCPROC(playBackStartCallback);
-                var playBackEndSyncProc = new SYNCPROC(playBackEndCallBack);
-                var playBackPausedSyncProc = new SYNCPROC(playBackPausedCallBack);
-                Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_POS | BASSSync.BASS_SYNC_MIXTIME, 0, playBackStartSyncProc, IntPtr.Zero);
-                Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_END | BASSSync.BASS_SYNC_MIXTIME, 0, playBackEndSyncProc, IntPtr.Zero);
-                Bass.BASS_ChannelSetSync(Stream, BASSSync.BASS_SYNC_STALL | BASSSync.BASS_SYNC_MIXTIME, 0, playBackEndSyncProc, IntPtr.Zero);
-				if (Bass.BASS_ChannelPlay(Stream, false))
-					PlaybackState = PlaybackState.Playing;
-            }
-            else
-                return false;
-            return true;
+			var item = LibraryActor.GetItem(identifier);
+			var result = BassActor.Play(item.FullPath);
+			if (result)
+			{
+				CurrentLibraryItem = item;
+				PlaybackState = PlaybackState.Playing;
+			}
+			return result;
         }
 
 		public bool Pause()
 		{
-			if (PlaybackState != PlaybackState.Playing)
-				throw new NotSupportedException($"Cannot pause playback! [Current State: {PlaybackState.ToString()}]");
-			var result = Stream != 0 ? Bass.BASS_ChannelPause(Stream) : false;
+			var result = BassActor.Pause();
 			if (result)
 				PlaybackState = PlaybackState.Paused;
 			return result;
@@ -62,9 +64,7 @@ namespace StutiBox.Actors
 
         public bool Resume()
 		{
-			if(PlaybackState!=PlaybackState.Paused)
-				throw new NotSupportedException($"Cannot resume playback! [Current State: {PlaybackState.ToString()}]");
-			var result = Stream != 0 ? Bass.BASS_ChannelPlay(Stream, false) : false;
+			var result = BassActor.Resume();
 			if (result)
 				PlaybackState = PlaybackState.Playing;
 			return result;
@@ -72,58 +72,20 @@ namespace StutiBox.Actors
 
         public bool Stop()
         {
-            if (PlaybackState != PlaybackState.Playing || PlaybackState != PlaybackState.Paused)
-				throw new NotSupportedException($"Cannot stop playback! [Current State: {PlaybackState.ToString()}]");
-            bool result;
-            if (Stream != 0)
-            {
-                result = Bass.BASS_ChannelStop(Stream);
-                result = Bass.BASS_StreamFree(Stream);
-                PlaybackState = PlaybackState.Stopped;
-            }
-            else
-                result = false;
-            Stream = 0;
-            return result;
-        }
-
-        public bool Volume(byte volume)
-		{
-			if (volume < 0)
-				CurrentVolume = 0;
-			else if (volume > MAX_VOLUME)
-				CurrentVolume = MAX_VOLUME;
-			else
-				CurrentVolume = volume;
-			var actualVolume = (float)CurrentVolume / 100f;
-			var result = Bass.BASS_SetVolume(actualVolume);
+			var result = BassActor.Stop();
+			if (result)
+			{
+				CurrentLibraryItem = null;
+				PlaybackState = PlaybackState.Stopped;
+			}
 			return result;
-		}
-
-        private void playBackPausedCallBack(int handle, int channel, int data, IntPtr user)
-        {
-            PlaybackState = data == 0 ? PlaybackState.Paused : PlaybackState.Playing;
         }
 
-        private void playBackStartCallback(int handle, int channel, int data, IntPtr user)
-        {
-			PlaybackState = PlaybackState.Playing;
-        }
+		public bool Volume(byte volume) => BassActor.Volume(volume);
 
-        private void playBackEndCallBack(int handle, int channel, int data, IntPtr user)
-        {
-            PlaybackState = PlaybackState.Stopped;
-        }
+		public bool ToggleRepeat() => BassActor.ToggleRepeat();
 
-        private void setupPlayBackEngine()
-        {
-            if (!Bass.BASS_Init(-1, 44100, BASSInit.BASS_DEVICE_DEFAULT, IntPtr.Zero))
-            {
-                PlaybackState = PlaybackState.Faulted;
-                throw new NotSupportedException("Initialization of Playback Engine Failed");
-            }
-            PlaybackState = PlaybackState.Stopped;
-        }
+		public bool Seek(double seconds) => BassActor.Seek(seconds);
     }
 
     public enum PlaybackState
