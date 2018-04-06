@@ -32,6 +32,7 @@ namespace StutiBox.Controllers
 			{
                 Status = true,
                 TotalLibraryItems = libraryActor.LibraryItems.Count,
+                LibraryRefreshedAt = libraryActor.RefreshedAt,
                 PlayerState = player.PlaybackState.ToString(),
                 player.CurrentLibraryItem,
 				BassState = player.BassActor.State.ToString(),
