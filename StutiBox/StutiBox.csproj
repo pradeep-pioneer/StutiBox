@@ -26,6 +26,8 @@
     <None Remove="LibraryConfiguration.json" />
     <None Remove="LibraryConfiguration.mac.json" />
     <None Remove="LibraryConfiguration.pi.json" />
+    <None Remove="Stutibox.service" />
+    <None Remove="Stutibox.service" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.0" />
@@ -73,6 +75,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="libbasswv.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Stutibox.service">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

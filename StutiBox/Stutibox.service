@@ -1,0 +1,16 @@
+﻿[Unit]
+Description=StutiBox audio service
+After=network.target
+
+[Service]
+ExecStart=/home/pi/StutiBox/publish/StutiBox
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=StutiBox
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+Alias=Stutibox.service
+

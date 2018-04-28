@@ -8,13 +8,13 @@ namespace StutiBox.Controllers
     [Route("api/[controller]")]
     public class LibraryController : Controller
     {
-		private IPlayerActor playerActor;
+		private IPlayerActor playerActor{ get { return DependencyActor.Container.Resolve<IPlayerActor>(); }}
 
-		public LibraryController():this(DependencyActor.Container.Resolve<IPlayerActor>()){}
+		//public LibraryController():this(DependencyActor.Container.Resolve<IPlayerActor>()){}
 
-		public LibraryController(IPlayerActor player)
+		public LibraryController()
 		{
-			playerActor = player;
+			
 		}
 		[HttpGet]
         [Route("")]
@@ -28,7 +28,7 @@ namespace StutiBox.Controllers
         [Route("Search")]
         public IActionResult Search([FromBody]string[] keyWords)
         {
-			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Items = playerActor.LibraryActor.Find(keyWords) }
+			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Items = playerActor.LibraryActor.Find(keyWords) };
             if (result.Items.Count > 0)
                 return Ok(result);
             else
@@ -39,7 +39,7 @@ namespace StutiBox.Controllers
         [Route("QuickSearch")]
         public IActionResult QuickSearch([FromBody]string[] keyWords)
         {
-			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Items = playerActor.LibraryActor.LuckySearch(keyWords) }
+			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Items = playerActor.LibraryActor.LuckySearch(keyWords) };
             if (result != null)
                 return Ok(result);
             else
@@ -50,7 +50,7 @@ namespace StutiBox.Controllers
         [Route("Details/{id}")]
         public IActionResult Details(int id)
         {
-			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Item = playerActor.LibraryActor.GetItem(id) }
+			var result = new { Status = true, LibraryRefreshedAt = playerActor.LibraryActor.RefreshedAt, Item = playerActor.LibraryActor.GetItem(id) };
             if (result.Item != null)
                 return Ok(result);
             else
