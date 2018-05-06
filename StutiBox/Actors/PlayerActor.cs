@@ -12,10 +12,13 @@ namespace StutiBox.Actors
     */
     public class PlayerActor : IPlayerActor
     {
+		const byte DECREASE_VOLUME_CONVERSATION = 40;
         public ILibraryActor LibraryActor { get; private set;}
 		public IBassActor BassActor { get; private set; }
         public PlaybackState PlaybackState { get; internal set; }
 		public LibraryItem CurrentLibraryItem { get; private set; }
+
+		private byte volumeMinusOne;
 
 
         public PlayerActor(ILibraryActor libraryActor, IBassActor bassActor)
@@ -86,6 +89,14 @@ namespace StutiBox.Actors
 		public bool ToggleRepeat() => BassActor.ToggleRepeat();
 
 		public bool Seek(double seconds) => BassActor.Seek(seconds);
+
+        public bool ConversationStarted()
+		{
+			volumeMinusOne = BassActor.CurrentVolume;
+			return BassActor.Volume((byte)(volumeMinusOne-DECREASE_VOLUME_CONVERSATION));
+		}
+
+		public bool ConversationFinished() => BassActor.Volume(volumeMinusOne);
     }
 
     public enum PlaybackState

@@ -189,7 +189,7 @@ namespace StutiBox.Actors
 				actualVolume = MAX_VOLUME;
             else
 				actualVolume = volume;
-            actualVolume = (float)CurrentVolume / 100f;
+            actualVolume = (float)actualVolume / 100f;
             var result = Bass.BASS_SetVolume(actualVolume);
             return result;
         }

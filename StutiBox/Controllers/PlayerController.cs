@@ -45,6 +45,30 @@ namespace StutiBox.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        [Route("ConversationStarted")]
+        public IActionResult ConversationStarted()
+		{
+			var respose = new
+			{
+				Status = player.ConversationStarted(),
+				Volume = player.BassActor.CurrentVolume
+			};
+			return Ok(respose);
+		}
+
+		[HttpGet]
+        [Route("ConversationFinished")]
+        public IActionResult ConversationFinished()
+        {
+            var respose = new
+            {
+                Status = player.ConversationFinished(),
+                Volume = player.BassActor.CurrentVolume
+            };
+            return Ok(respose);
+        }
+
         [HttpPost]
         [Route("Request")]
         public IActionResult RequestAction([FromBody]PlayerRequest playerRequest)

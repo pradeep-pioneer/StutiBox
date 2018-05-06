@@ -15,5 +15,7 @@ namespace StutiBox.Actors
 		bool Volume(byte volume);
 		bool ToggleRepeat();
 		bool Seek(double seconds);
+		bool ConversationStarted();
+		bool ConversationFinished();
     }
 }
