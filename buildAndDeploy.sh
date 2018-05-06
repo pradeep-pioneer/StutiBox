@@ -45,7 +45,7 @@ ssh pi@192.168.1.200 sudo systemctl start Stutibox.service
 echo "Copying the service files to designated location on 201"
 ssh pi@192.168.1.201 sudo cp "/home/pi/StutiBox/publish/Stutibox.service" "/lib/systemd/system/Stutibox.service"
 echo "Enabling the service on 201"
-sh pi@192.168.1.200 sudo systemctl daemon-reload
+ssh pi@192.168.1.200 sudo systemctl daemon-reload
 ssh pi@192.168.1.201 sudo systemctl enable Stutibox.service
 echo "Starting the service on 201"
 ssh pi@192.168.1.201 sudo systemctl start Stutibox.service
