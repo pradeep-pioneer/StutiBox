@@ -145,14 +145,14 @@ namespace StutiBox.Controllers
 			dynamic response = null;
             switch (playerControlRequest.ControlRequest)
 			{
-				case ControlRequest.Volume:
+				case ControlRequest.VolumeAbsolute:
 					var volume = (byte)playerControlRequest.RequestData;
 					if (player.Volume(volume))
-						response = new { Status = true, Message = $"Set Volume!", Values = new {Scale1 = volume, Scale2 = (float)volume / 100f} };
+						response = new { Status = true, Message = $"Set Volume!", Values = new {Scale1 = player.BassActor.CurrentVolume, Scale2 = (float)player.BassActor.CurrentVolume / 100f} };
 					else
 						response = new { Status = false, Message = $"Unknown Error!" };
 					break;
-				case ControlRequest.Repeat:
+				case ControlRequest.RepeatToggle:
 					var result = player.ToggleRepeat();
                     response = new
                     {
@@ -172,6 +172,15 @@ namespace StutiBox.Controllers
                         player.BassActor.CurrentPositionString
                     };
 					break;
+				case ControlRequest.VolumeRelative:
+					var volumeStep = (byte)playerControlRequest.RequestData;
+					var oldVolume = player.BassActor.CurrentVolume;
+					var newVolume = (byte)(oldVolume + volumeStep);
+					if (player.Volume(newVolume))
+						response = new { Status = true, Message = $"Set Volume!", Values = new { Scale1 = player.BassActor.CurrentVolume, Scale2 = (float)player.BassActor.CurrentVolume / 100f } };
+                    else
+                        response = new { Status = false, Message = $"Unknown Error!" };
+                    break;
 				case ControlRequest.Random:
 				default:
 					break;

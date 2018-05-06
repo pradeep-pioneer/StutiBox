@@ -10,9 +10,11 @@ namespace StutiBox.Models
 
 	public enum ControlRequest
 	{
-		Volume = 1,
-		Repeat = 2,
+		VolumeAbsolute = 1,
+		RepeatToggle = 2,
 		Random = 3,
-        Seek = 4
+        Seek = 4,
+        VolumeRelative = 5,
+        RepeatAbsolute = 6
 	}
 }
