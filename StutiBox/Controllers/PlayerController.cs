@@ -9,6 +9,10 @@ using Autofac;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
+//Top features required:
+//1. Alarms: Basically scheduled timers for music playback
+//2. reminders creation and playback: using could speech/any free
+
 namespace StutiBox.Controllers
 {
     [Route("api/[controller]")]
