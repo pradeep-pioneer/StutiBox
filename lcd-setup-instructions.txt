@@ -1,0 +1,41 @@
+https://retropie.org.uk/forum/topic/4157/guide-retropie-3-5-inch-rpi-lcd-v3-0-no-brand/2
+visit the above link or see below:
+====================================
+This guide is for a clone of the Waveshare 3.5 and we can use the same drivers. But all guides on various forums are made on a fresh Raspian OS install. This guide is for install correctly this LCD on a fresh install of RETROPIE, actually the 4.0.2. Here we go:
+
+With the 4.0.2 u dont need to expand file sistem because this last version will do it for u at the first boot! U just have to setup a gamepad, check your IP and force the audio in 3.5mm jack
+
+git clone https://github.com/swkim01/waveshare-dtoverlays.git
+
+sudo cp waveshare-dtoverlays/waveshare35a-overlay.dtb /boot/overlays/waveshare35a.dtbo
+(this is very important because most guide are for 3.2 inch so if u have the waveshare 3.2 u must exchange the word "waveshare35a " in "waveshare32b" but no one say that xD)
+
+sudo nano /boot/config.txt
+(copy and paste this at the very bottom)
+dtparam=spi=on
+dtoverlay=waveshare35a
+(remember here again if u have the 3,2 inch u must change in waveshare32b)
+(CTRL+X, then Y, enter key)
+
+sudo reboot
+
+ls /dev/fb*
+(if u do correctly all above u must see in yellow dev/fb0 /dev/fb1 where fb1 its your LCD correctly installed)
+
+sudo apt-get install cmake
+git clone https://github.com/tasanakorn/rpi-fbcp
+cd rpi-fbcp/
+mkdir build
+cd build/
+cmake ..
+make
+sudo install fbcp /usr/local/bin/fbcp
+
+sudo nano /etc/rc.local
+
+(at the very bottom BEFORE "exit 0" you have to add this line)
+/usr/local/bin/fbcp &
+(CTRL+X, then Y, enter key)
+
+sudo reboot
+

@@ -34,7 +34,7 @@ echo "Copying the published files to 192.168.1.201"
 scp -r StutiBox/bin/Release/netcoreapp2.0/linux-arm/publish/ pi@192.168.1.201:~/StutiBox/
 
 echo "Copying the service files to designated location on 200"
-ssh pi@192.168.1.200 sudo cp "/home/pi/StutiBox/publish/Stutibox.service" "/lib/systemd/system/Stutibox.service"
+ssh pi@192.168.1.200 sudo cp "/home/pi/StutiBox/Stutibox.service" "/lib/systemd/system/Stutibox.service"
 echo "Enabling the service on 200"
 ssh pi@192.168.1.200 sudo systemctl daemon-reload
 ssh pi@192.168.1.200 sudo systemctl enable Stutibox.service
